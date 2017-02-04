@@ -1,5 +1,5 @@
 #include "scr/game.h"
 int main() {
-  game game(649, 480);
+  game game(1600, 1200);
   return game.loop();
 }
