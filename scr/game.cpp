@@ -2,10 +2,11 @@
 // Created by Lasse Lauritsen on 04/02/2017.
 //
 
+#include <array>
 #include "game.h"
 
 game::game(int screenWidth, int screenHeight) : screenHeight_(screenHeight), screenWidth_(screenWidth) {
-
+  gen_ =  std::make_unique<dataGenerator>(screenWidth_/10);
 }
 
 bool game::init() {
@@ -49,6 +50,12 @@ void game::close() {
 }
 
 int game::loop() {
+  int data[screenWidth_/10];
+
+  for (int n = 0; n < screenWidth_/10; n++) {
+    data[n] = 0;
+  }
+
   if (init()) {
     bool quit = false;
     SDL_Event evt;
@@ -62,6 +69,9 @@ int game::loop() {
             break;
         }
       }
+      //gen_->addNumberUniform(data, screenWidth_/10);
+      gen_->addNumberNormal(data, screenWidth_/10);
+      drawDistrubution(data, screenWidth_/10);
     }
   } else {
     close();
@@ -69,5 +79,21 @@ int game::loop() {
   }
   close();
   return 0;
+}
+
+void game::drawDistrubution(int data[], int size) {
+  SDL_Rect rects[size] ;
+  int rect_width = screenWidth_/size;
+  for (int n = 0; n < size; n++) {
+    rects[n].y = screenHeight_ -  (5 * data[n]);
+    rects[n].x = n * rect_width;
+    rects[n].w = rect_width;
+    rects[n].h = 5 * data[n];
+  }
+  SDL_SetRenderDrawColor(renderer_, 0, 0, 0, SDL_ALPHA_OPAQUE);
+  SDL_RenderClear(renderer_);
+  SDL_SetRenderDrawColor(renderer_, 255, 255, 255, SDL_ALPHA_OPAQUE);
+  SDL_RenderDrawRects(renderer_, rects, size);
+  SDL_RenderPresent(renderer_);
 }
 
